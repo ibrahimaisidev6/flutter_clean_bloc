@@ -1,0 +1,8 @@
+flutter clean
+flutter pub get
+ls -lh android/app/build/outputs/apk/debug/
+mkdir -p build/app/outputs/flutter-apk/
+ls -lh build/app/outputs/flutter-apk/
+cp android/app/build/outputs/apk/debug/app-debug.apk \
+   build/app/outputs/flutter-apk/
+flutter run

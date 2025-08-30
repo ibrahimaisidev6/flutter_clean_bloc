@@ -552,4 +552,253 @@ class MockApiService {
       },
     };
   }
+
+  // History endpoints
+  Future<Map<String, dynamic>> getPaymentHistory(
+    String token, {
+    int page = 1,
+    int perPage = 15,
+  }) async {
+    await _simulateDelay();
+
+    final userId = _getUserIdFromToken(token);
+    if (userId == null) {
+      throw const AuthenticationException('Token invalide', 'INVALID_TOKEN');
+    }
+
+    // Get all payments for the user and sort by date
+    var userPayments = _payments.where((p) => p['user_id'] == userId).toList();
+    userPayments.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+
+    // Add some mock transaction history entries
+    final List<Map<String, dynamic>> history = [
+      ...userPayments.map((payment) => {
+        ...payment,
+        'transaction_type': 'payment',
+        'category': _getCategoryFromDescription(payment['description'] as String),
+      }),
+      // Add some mock refunds and adjustments
+      {
+        'id': 100,
+        'user_id': userId,
+        'amount': 25.0,
+        'type': 'refund',
+        'status': 'completed',
+        'description': 'Remboursement Abonnement Netflix',
+        'reference': 'REF-001-2025',
+        'transaction_type': 'refund',
+        'category': 'Entertainment',
+        'created_at': '2025-02-10T16:20:00.000000Z',
+        'updated_at': '2025-02-10T16:20:00.000000Z',
+      },
+      {
+        'id': 101,
+        'user_id': userId,
+        'amount': 5.0,
+        'type': 'adjustment',
+        'status': 'completed',
+        'description': 'Ajustement de solde',
+        'reference': 'ADJ-001-2025',
+        'transaction_type': 'adjustment',
+        'category': 'System',
+        'created_at': '2025-02-05T12:00:00.000000Z',
+        'updated_at': '2025-02-05T12:00:00.000000Z',
+      },
+    ];
+
+    // Sort all history by date
+    history.sort((a, b) => DateTime.parse(b['created_at']).compareTo(DateTime.parse(a['created_at'])));
+
+    // Pagination
+    final total = history.length;
+    final lastPage = (total / perPage).ceil();
+    final from = total > 0 ? (page - 1) * perPage + 1 : 0;
+    final to = (page * perPage < total) ? page * perPage : total;
+    
+    final startIndex = (page - 1) * perPage;
+    final endIndex = startIndex + perPage;
+    final paginatedHistory = history.sublist(
+      startIndex,
+      endIndex > history.length ? history.length : endIndex,
+    );
+
+    return {
+      'success': true,
+      'data': {
+        'transactions': paginatedHistory,
+        'pagination': {
+          'current_page': page,
+          'per_page': perPage,
+          'total': total,
+          'last_page': lastPage,
+          'from': from,
+          'to': to,
+        },
+        'summary': {
+          'total_transactions': total,
+          'total_amount': history.fold<double>(0.0, (sum, t) => sum + (t['amount'] as double)),
+          'categories': _getCategorySummary(history),
+        },
+      },
+    };
+  }
+
+  // Profile endpoints
+  Future<Map<String, dynamic>> getUserProfile(String token) async {
+    await _simulateDelay();
+
+    final userId = _getUserIdFromToken(token);
+    if (userId == null) {
+      throw const AuthenticationException('Token invalide', 'INVALID_TOKEN');
+    }
+
+    final user = _users.firstWhere(
+      (u) => u['id'] == userId,
+      orElse: () => {},
+    );
+
+    if (user.isEmpty) {
+      throw const AuthenticationException('Utilisateur introuvable', 'USER_NOT_FOUND');
+    }
+
+    final userData = Map<String, dynamic>.from(user);
+    userData.remove('password');
+
+    // Add additional profile information
+    final profile = {
+      ...userData,
+      'phone': '+221 77 123 45 67',
+      'avatar': null,
+      'verified': true,
+      'preferences': {
+        'currency': 'XOF',
+        'language': 'fr',
+        'notifications': {
+          'email': true,
+          'sms': true,
+          'push': true,
+        },
+        'security': {
+          'two_factor_enabled': false,
+          'biometric_enabled': true,
+          'last_password_change': '2024-01-01T00:00:00.000000Z',
+        },
+      },
+      'wallet': {
+        'balance': _calculateUserBalance(userId),
+        'currency': 'XOF',
+        'status': 'active',
+        'daily_limit': 100000.0,
+        'monthly_limit': 500000.0,
+      },
+      'statistics': {
+        'total_payments': _payments.where((p) => p['user_id'] == userId).length,
+        'successful_payments': _payments.where((p) => p['user_id'] == userId && p['status'] == 'completed').length,
+        'total_amount_spent': _payments
+            .where((p) => p['user_id'] == userId && p['type'] == 'expense' && p['status'] == 'completed')
+            .fold<double>(0.0, (sum, p) => sum + (p['amount'] as double)),
+        'member_since': userData['created_at'],
+      },
+    };
+
+    return {
+      'success': true,
+      'data': {
+        'user': profile,
+      },
+    };
+  }
+
+  Future<Map<String, dynamic>> updateUserProfile(
+    String token, {
+    String? name,
+    String? email,
+    String? phone,
+  }) async {
+    await _simulateDelay();
+
+    final userId = _getUserIdFromToken(token);
+    if (userId == null) {
+      throw const AuthenticationException('Token invalide', 'INVALID_TOKEN');
+    }
+
+    final userIndex = _users.indexWhere((u) => u['id'] == userId);
+    if (userIndex == -1) {
+      throw const AuthenticationException('Utilisateur introuvable', 'USER_NOT_FOUND');
+    }
+
+    // Check if email is already taken by another user
+    // Check if email already exists
+    final existingUser = _users.where((u) => u['email'] == email).firstOrNull;
+    if (existingUser != null) {
+      throw const ValidationException(
+        'L\'email est déjà utilisé',
+        'EMAIL_TAKEN',
+        'email',
+        {'email': ['L\'email est déjà utilisé par un autre compte']},
+      );
+    }
+
+    final user = _users[userIndex];
+    
+    if (name != null) user['name'] = name;
+    if (email != null) user['email'] = email;
+    user['updated_at'] = DateTime.now().toIso8601String();
+
+    final updatedProfile = await getUserProfile(token);
+
+    return {
+      'success': true,
+      'message': 'Profil mis à jour avec succès',
+      'data': updatedProfile['data'],
+    };
+  }
+
+  // Helper methods
+  String _getCategoryFromDescription(String description) {
+    final desc = description.toLowerCase();
+    if (desc.contains('internet') || desc.contains('mobile')) return 'Telecommunications';
+    if (desc.contains('électricité') || desc.contains('eau') || desc.contains('gaz')) return 'Utilities';
+    if (desc.contains('loyer') || desc.contains('appartement')) return 'Housing';
+    if (desc.contains('netflix') || desc.contains('spotify') || desc.contains('abonnement')) return 'Entertainment';
+    if (desc.contains('transport') || desc.contains('taxi')) return 'Transportation';
+    if (desc.contains('alimentaire') || desc.contains('restaurant')) return 'Food';
+    return 'Other';
+  }
+
+  Map<String, dynamic> _getCategorySummary(List<Map<String, dynamic>> transactions) {
+    final categories = <String, Map<String, dynamic>>{};
+    
+    for (final transaction in transactions) {
+      final category = transaction['category'] as String;
+      final amount = transaction['amount'] as double;
+      
+      if (!categories.containsKey(category)) {
+        categories[category] = {'count': 0, 'total_amount': 0.0};
+      }
+      
+      categories[category]!['count'] = categories[category]!['count'] + 1;
+      categories[category]!['total_amount'] = categories[category]!['total_amount'] + amount;
+    }
+    
+    return categories;
+  }
+
+  double _calculateUserBalance(int userId) {
+    final userPayments = _payments.where((p) => p['user_id'] == userId && p['status'] == 'completed');
+    double income = 0.0;
+    double expense = 0.0;
+    
+    for (final payment in userPayments) {
+      final amount = payment['amount'] as double;
+      if (payment['type'] == 'income') {
+        income += amount;
+      } else {
+        expense += amount;
+      }
+    }
+    
+    // Start with a base balance and subtract expenses
+    return 5000.0 + income - expense;
+  }
 }

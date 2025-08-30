@@ -36,6 +36,21 @@ import 'features/payments/domain/usecases/process_payment_usecase.dart';
 import 'features/payments/presentation/bloc/payment_bloc.dart';
 import 'features/payments/presentation/bloc/payment_list_bloc.dart';
 
+// History imports
+import 'features/history/data/datasources/history_remote_data_source.dart';
+import 'features/history/data/repositories/history_repository_impl.dart'; // Changed: Import implementation
+import 'features/history/domain/repositories/history_repository.dart';
+import 'features/history/domain/usecases/get_history_usecase.dart';
+import 'features/history/presentation/bloc/history_bloc.dart';
+
+// Profile imports
+import 'features/profile/data/datasources/profile_remote_data_source.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart'; // Changed: Import implementation
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/domain/usecases/get_profile_usecase.dart';
+import 'features/profile/domain/usecases/update_profile_usecase.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -55,6 +70,12 @@ Future<void> init() async {
 
   //! Features - Payments
   await _initPayments();
+
+  //! Features - History
+  await _initHistory();
+
+  //! Features - Profile
+  await _initProfile();
 
   //! Navigation Service - DOIT être initialisé APRÈS AuthBloc
   sl.registerLazySingleton(() => NavigationService());
@@ -80,22 +101,22 @@ Future<void> _initAuth() async {
     () => AuthRemoteDataSourceImpl(sl()),
   );
 
-  // Bloc - CHANGEMENT CRUCIAL: Singleton au lieu de Factory
+  // Bloc - Singleton (pour que AuthBloc soit unique dans l'app)
   sl.registerLazySingleton(() => AuthBloc(
-    loginUseCase: sl(),
-    registerUseCase: sl(),
-    logoutUseCase: sl(),
-    getCurrentUserUseCase: sl(),
-    storageService: sl(),
-    dioClient: sl(),
-  ));
+        loginUseCase: sl(),
+        registerUseCase: sl(),
+        logoutUseCase: sl(),
+        getCurrentUserUseCase: sl(),
+        storageService: sl(),
+        dioClient: sl(),
+      ));
 }
 
 Future<void> _initDashboard() async {
   // Bloc
   sl.registerFactory(() => DashboardBloc(
-    getDashboardStatsUseCase: sl(),
-  ));
+        getDashboardStatsUseCase: sl(),
+      ));
 
   // Use cases
   sl.registerLazySingleton(() => GetDashboardStatsUseCase(sl()));
@@ -117,16 +138,16 @@ Future<void> _initDashboard() async {
 Future<void> _initPayments() async {
   // Blocs
   sl.registerFactory(() => PaymentBloc(
-    getPaymentDetailUseCase: sl(),
-    createPaymentUseCase: sl(),
-    updatePaymentUseCase: sl(),
-    deletePaymentUseCase: sl(),
-    processPaymentUseCase: sl(),
-  ));
+        getPaymentDetailUseCase: sl(),
+        createPaymentUseCase: sl(),
+        updatePaymentUseCase: sl(),
+        deletePaymentUseCase: sl(),
+        processPaymentUseCase: sl(),
+      ));
 
   sl.registerFactory(() => PaymentListBloc(
-    getPaymentsUseCase: sl(),
-  ));
+        getPaymentsUseCase: sl(),
+      ));
 
   // Use cases
   sl.registerLazySingleton(() => GetPaymentsUseCase(sl()));
@@ -147,5 +168,51 @@ Future<void> _initPayments() async {
   // Data sources
   sl.registerLazySingleton<PaymentRemoteDataSource>(
     () => PaymentRemoteDataSourceImpl(dioClient: sl()),
+  );
+}
+
+Future<void> _initHistory() async {
+  // Bloc
+  sl.registerFactory(() => HistoryBloc(getHistoryUseCase: sl()));
+
+  // Use cases
+  sl.registerLazySingleton(() => GetHistoryUseCase(sl()));
+
+  // Repository - Fixed: Use concrete implementation with proper constructor
+  sl.registerLazySingleton<HistoryRepository>(
+    () => HistoryRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Data sources - Fixed: Pass required dioClient parameter
+  sl.registerLazySingleton<HistoryRemoteDataSource>(
+    () => HistoryRemoteDataSourceImpl(dioClient: sl()),
+  );
+}
+
+Future<void> _initProfile() async {
+  // Bloc - Fixed: Use named parameters
+  sl.registerFactory(() => ProfileBloc(
+        getProfileUseCase: sl(),
+        updateProfileUseCase: sl(),
+      ));
+
+  // Use cases
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+
+  // Repository - Fixed: Use concrete implementation with proper constructor
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(
+      remoteDataSource: sl(),
+      networkInfo: sl(),
+    ),
+  );
+
+  // Data sources - Fixed: Pass required dioClient parameter
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(dioClient: sl()),
   );
 }

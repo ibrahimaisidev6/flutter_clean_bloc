@@ -336,6 +336,31 @@ class DioClient {
           );
           break;
 
+        // History endpoint
+        case '/history':
+          responseData = await _mockApi.getPaymentHistory(
+            token ?? '',
+            page: int.tryParse(queryParameters?['page']?.toString() ?? '1') ?? 1,
+            perPage: int.tryParse(queryParameters?['per_page']?.toString() ?? '15') ?? 15,
+          );
+          break;
+
+        // Profile endpoint
+        case '/profile':
+          if (method == 'GET') {
+            responseData = await _mockApi.getUserProfile(token ?? '');
+          } else if (method == 'PUT') {
+            responseData = await _mockApi.updateUserProfile(
+              token ?? '',
+              name: data?['name'],
+              email: data?['email'],
+              phone: data?['phone'],
+            );
+          } else {
+            throw const ServerException('Method not allowed', 'METHOD_NOT_ALLOWED');
+          }
+          break;
+
         default:
           // Handle payment detail endpoints (e.g., /payments/1)
           if (path.startsWith('/payments/')) {

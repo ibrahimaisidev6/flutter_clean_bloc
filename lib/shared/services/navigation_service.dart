@@ -13,6 +13,8 @@ import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/payments/presentation/pages/payments_page.dart';
 import '../../features/payments/presentation/pages/payment_detail_page.dart';
 import '../../features/payments/presentation/pages/create_payment_page.dart';
+import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../widgets/main_layout.dart';
 import '../../injection_container.dart' as di;
 
@@ -28,50 +30,45 @@ class NavigationService {
     _router = GoRouter(
       navigatorKey: navigatorKey,
       initialLocation: '/splash',
-      // AJOUT CRUCIAL: Logique de redirection basée sur l'état d'auth
       redirect: (context, state) {
         final authState = authBloc.state;
         final location = state.matchedLocation;
         
         debugPrint('NavigationService redirect: ${authState.runtimeType} -> $location');
         
-        // Si on est en cours de chargement, rester où on est
+        // Cas 1 : Splash en cours de chargement
         if (authState is AuthLoading && location == '/splash') {
           return null;
         }
         
-        // Si l'utilisateur est authentifié
+        // Cas 2 : Utilisateur authentifié
         if (authState is AuthAuthenticated) {
-          // Et qu'il est sur une page d'auth, le rediriger vers dashboard
           if (location == '/login' || location == '/register' || location == '/splash') {
             debugPrint('Redirecting authenticated user to dashboard');
             return '/dashboard';
           }
         }
         
-        // Si l'utilisateur n'est pas authentifié
+        // Cas 3 : Utilisateur non authentifié
         if (authState is AuthUnauthenticated) {
-          // Et qu'il n'est pas sur une page d'auth, le rediriger vers login
           if (location != '/login' && location != '/register') {
             debugPrint('Redirecting unauthenticated user to login');
             return '/login';
           }
         }
         
-        // Pas de redirection nécessaire
         return null;
       },
-      // AJOUT CRUCIAL: Écouter les changements d'état pour re-évaluer la redirection
       refreshListenable: GoRouterRefreshStream(authBloc.stream),
       routes: [
-        // Splash Route
+        // Splash
         GoRoute(
           path: '/splash',
           name: 'splash',
           builder: (context, state) => const SplashPage(),
         ),
 
-        // Authentication Routes  
+        // Authentication
         GoRoute(
           path: '/login',
           name: 'login',
@@ -83,14 +80,14 @@ class NavigationService {
           builder: (context, state) => const RegisterPage(),
         ),
 
-        // Main App Routes
+        // Dashboard
         GoRoute(
           path: '/dashboard',
           name: 'dashboard',
           builder: (context, state) => const MainLayout(initialIndex: 0),
         ),
         
-        // Payment Routes
+        // Payments
         GoRoute(
           path: '/payments',
           name: 'payments',
@@ -110,6 +107,20 @@ class NavigationService {
               },
             ),
           ],
+        ),
+
+        // Historique
+        GoRoute(
+          path: '/history',
+          name: 'history',
+          builder: (context, state) => const MainLayout(initialIndex: 2),
+        ),
+
+        // Profil
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          builder: (context, state) => const MainLayout(initialIndex: 3),
         ),
       ],
       errorBuilder: (context, state) => Scaffold(
@@ -146,30 +157,15 @@ class NavigationService {
 
   GoRouter get router => _router;
 
-  // Navigation helper methods
-  void goToLogin() {
-    _router.go('/login');
-  }
-
-  void goToRegister() {
-    _router.go('/register');
-  }
-
-  void goToDashboard() {
-    _router.go('/dashboard');
-  }
-
-  void goToPayments() {
-    _router.go('/payments');
-  }
-
-  void goToCreatePayment() {
-    _router.go('/payments/create');
-  }
-
-  void goToPaymentDetail(String paymentId) {
-    _router.go('/payments/$paymentId');
-  }
+  // Navigation helpers
+  void goToLogin() => _router.go('/login');
+  void goToRegister() => _router.go('/register');
+  void goToDashboard() => _router.go('/dashboard');
+  void goToPayments() => _router.go('/payments');
+  void goToCreatePayment() => _router.go('/payments/create');
+  void goToPaymentDetail(String paymentId) => _router.go('/payments/$paymentId');
+  void goToHistory() => _router.go('/history');
+  void goToProfile() => _router.go('/profile');
 
   void goBack() {
     if (_router.canPop()) {
@@ -192,9 +188,7 @@ class NavigationService {
     }
   }
 
-  void showErrorSnackBar(String message) {
-    showSnackBar(message, isError: true);
-  }
+  void showErrorSnackBar(String message) => showSnackBar(message, isError: true);
 
   Future<bool?> showConfirmDialog({
     required String title,
@@ -225,7 +219,7 @@ class NavigationService {
   }
 }
 
-// Classe helper pour écouter les changements de stream AuthBloc
+/// Classe helper pour écouter les changements de stream AuthBloc
 class GoRouterRefreshStream extends ChangeNotifier {
   late final StreamSubscription _subscription;
 

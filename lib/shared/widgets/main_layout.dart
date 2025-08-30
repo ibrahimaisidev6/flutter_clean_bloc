@@ -6,6 +6,10 @@ import '../../features/authentication/presentation/bloc/auth_bloc.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import '../../features/payments/presentation/pages/payments_page.dart';
+import '../../features/history/presentation/pages/history_page.dart';
+import '../../features/history/presentation/bloc/history_bloc.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../injection_container.dart' as di;
 
 class MainLayout extends StatefulWidget {
@@ -30,6 +34,14 @@ class _MainLayoutState extends State<MainLayout> {
       child: const DashboardPage(showAppBar: false),
     ),
     const PaymentsPage(showAppBar: false),
+    BlocProvider(
+      create: (context) => di.sl<HistoryBloc>(),
+      child: const HistoryPage(showAppBar: false),
+    ),
+    BlocProvider(
+      create: (context) => di.sl<ProfileBloc>(),
+      child: const ProfilePage(showAppBar: false),
+    ),
   ];
 
   @override
@@ -73,6 +85,10 @@ class _MainLayoutState extends State<MainLayout> {
         return 'Dashboard';
       case 1:
         return 'Paiements';
+      case 2:
+        return 'Historique';
+      case 3:
+        return 'Profil';
       default:
         return 'App';
     }
@@ -92,7 +108,6 @@ class _MainLayoutState extends State<MainLayout> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // CORRIGÉ: Utiliser AuthLogoutRequested au lieu de LogoutRequested
               context.read<AuthBloc>().add(AuthLogoutRequested());
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -103,6 +118,7 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 
+  /// ----------- MOBILE -----------
   Widget _buildMobileLayout(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -139,11 +155,20 @@ class _MainLayoutState extends State<MainLayout> {
             icon: Icon(Icons.payment),
             label: 'Paiements',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Historique',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
         ],
       ),
     );
   }
 
+  /// ----------- DESKTOP -----------
   Widget _buildDesktopLayout(BuildContext context) {
     return Scaffold(
       body: Row(
@@ -229,6 +254,22 @@ class _MainLayoutState extends State<MainLayout> {
                   label: 'Paiements',
                   isSelected: _currentIndex == 1,
                   onTap: () => _onTabTapped(1),
+                ),
+                const SizedBox(height: 8),
+                _buildSidebarItem(
+                  context,
+                  icon: Icons.history,
+                  label: 'Historique',
+                  isSelected: _currentIndex == 2,
+                  onTap: () => _onTabTapped(2),
+                ),
+                const SizedBox(height: 8),
+                _buildSidebarItem(
+                  context,
+                  icon: Icons.person,
+                  label: 'Profil',
+                  isSelected: _currentIndex == 3,
+                  onTap: () => _onTabTapped(3),
                 ),
               ],
             ),

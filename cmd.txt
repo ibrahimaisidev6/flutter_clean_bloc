@@ -6,3 +6,20 @@ ls -lh build/app/outputs/flutter-apk/
 cp android/app/build/outputs/apk/debug/app-debug.apk \
    build/app/outputs/flutter-apk/
 flutter run
+
+git config --global user.name
+git config --global user.email
+IbrahimaISIDev
+sorydiallo371@gmail.com
+
+
+git config --global user.name "ibrahimaisidev6"
+git config --global user.email "ibrahimaisidev@gmail.com"
+
+
+git config --global user.name "IbrahimaISIDev"
+git config --global user.email "sorydiallo371@gmail.com"
+
+
+git config --global user.name "IbrahimaUNCHK"
+git config --global user.email "ibrahimasory.diallo7@unchk.edu.sn"

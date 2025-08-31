@@ -24,7 +24,7 @@ class CreatePayment extends PaymentEvent {
   final String title; // Ajouté
   final double amount;
   final PaymentType type;
-  final String? description;
+  final String description;
   final String? category;
   final String? reference;
 
@@ -33,7 +33,7 @@ class CreatePayment extends PaymentEvent {
     required this.title,
     required this.amount,
     required this.type,
-    this.description,
+    required this.description,
     this.category,
     this.reference,
   });

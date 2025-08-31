@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
 export "FLUTTER_ROOT=/home/dev/snap/flutter/common/flutter"
-export "FLUTTER_APPLICATION_PATH=/home/dev/Téléchargements/15b86dea-6563-478e-98af-06fb8164d14b-files/payment_app"
+export "FLUTTER_APPLICATION_PATH=/home/dev/Documents/payment_projects_test_dioko/payment_app"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_TARGET=lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"

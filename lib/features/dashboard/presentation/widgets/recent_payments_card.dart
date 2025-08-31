@@ -11,7 +11,8 @@ class RecentPaymentsCard extends StatelessWidget {
   const RecentPaymentsCard({
     super.key,
     required this.payments,
-    this.onSeeAll, required Null Function() onViewAll,
+    this.onSeeAll,
+    required Null Function() onViewAll,
   });
 
   @override
@@ -29,8 +30,8 @@ class RecentPaymentsCard extends StatelessWidget {
                 Text(
                   'Paiements récents',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 if (onSeeAll != null)
                   TextButton(
@@ -48,7 +49,9 @@ class RecentPaymentsCard extends StatelessWidget {
                 ),
               )
             else
-              ...payments.take(5).map((payment) => _buildPaymentItem(context, payment)),
+              ...payments
+                  .take(5)
+                  .map((payment) => _buildPaymentItem(context, payment)),
           ],
         ),
       ),
@@ -83,23 +86,23 @@ class RecentPaymentsCard extends StatelessWidget {
                 Text(
                   payment.title,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 if (payment.description?.isNotEmpty == true)
                   Text(
                     payment.description!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                          color: Colors.grey[600],
+                        ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 Text(
                   DateFormat('dd/MM/yyyy').format(payment.createdAt),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+                        color: Colors.grey[600],
+                      ),
                 ),
               ],
             ),
@@ -108,11 +111,11 @@ class RecentPaymentsCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${isIncome ? '+' : '-'}${payment.amount.toStringAsFixed(2)} €',
+                '${isIncome ? '+' : '-'}${payment.amount.toStringAsFixed(2)} F CFA',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isIncome ? Colors.green : Colors.red,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: isIncome ? Colors.green : Colors.red,
+                    ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

@@ -2,7 +2,6 @@
 // Version corrigée pour gérer les nouveaux événements
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/payment.dart';
 import '../../domain/usecases/get_payment_detail_usecase.dart';
 import '../../domain/usecases/create_payment_usecase.dart';
 import '../../domain/usecases/update_payment_usecase.dart';

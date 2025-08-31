@@ -1,4 +1,6 @@
 // lib/features/payments/domain/usecases/create_payment_usecase.dart
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import '../entities/payment.dart';
 import '../entities/payment_enums.dart';
@@ -22,7 +24,7 @@ class CreatePaymentParams {
     required this.type,
     this.description,
     this.category,
-    this.reference,
+    this.reference, File? attachmentFile,
   });
 }
 

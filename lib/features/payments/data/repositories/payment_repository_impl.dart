@@ -90,6 +90,7 @@ class PaymentRepositoryImpl implements PaymentRepository {
           type: payment.type.name, // Convertir enum en String
           description: payment.description ?? '',
           reference: payment.reference,
+          attachmentFile: payment.attachmentFile, title: '',
         );
         return Right(createdPayment);
       } on ServerException catch (e) {

@@ -63,6 +63,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         description: event.description,
         category: event.category,
         reference: event.reference,
+        attachmentFile: event.attachmentFile,
       ),
     );
 

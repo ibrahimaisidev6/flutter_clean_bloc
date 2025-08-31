@@ -1,4 +1,6 @@
 // lib/features/payments/presentation/bloc/payment_list_event.dart
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/payment_enums.dart';
 
@@ -16,6 +18,7 @@ class LoadPayments extends PaymentListEvent {
   final PaymentType? type; // Changé en enum
   final DateTime? startDate;
   final DateTime? endDate;
+  final File? attachmentFile;
 
   const LoadPayments({
     this.page = 1,
@@ -24,10 +27,11 @@ class LoadPayments extends PaymentListEvent {
     this.type,
     this.startDate,
     this.endDate,
+    this.attachmentFile,
   });
 
   @override
-  List<Object?> get props => [page, perPage, status, type, startDate, endDate];
+  List<Object?> get props => [page, perPage, status, type, startDate, endDate, attachmentFile];
 }
 
 class RefreshPayments extends PaymentListEvent {

@@ -1,4 +1,6 @@
 // lib/features/payments/domain/entities/payment.dart
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'payment_enums.dart';
 
@@ -15,6 +17,7 @@ class Payment extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt; // Remplace processedAt
   final DateTime? processedAt;
+  final File? attachmentFile; // Géré dans le BLoC, pas dans l'entité
 
   const Payment({
     required this.id,
@@ -29,6 +32,7 @@ class Payment extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.processedAt,
+    this.attachmentFile,
   });
 
   // Getters ajoutés pour correspondre aux erreurs
@@ -49,6 +53,7 @@ class Payment extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? processedAt,
+    File? attachmentFile, 
   }) {
     return Payment(
       id: id ?? this.id,
@@ -63,6 +68,7 @@ class Payment extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       processedAt: processedAt ?? this.processedAt,
+      attachmentFile: attachmentFile ?? this.attachmentFile,
     );
   }
 
@@ -80,5 +86,6 @@ class Payment extends Equatable {
         createdAt,
         updatedAt,
         processedAt,
+        attachmentFile,
       ];
 }

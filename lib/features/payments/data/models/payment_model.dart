@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../domain/entities/payment.dart';
 import '../../domain/entities/payment_enums.dart';
 
@@ -15,6 +17,7 @@ class PaymentModel extends Payment {
     required DateTime createdAt,
     required DateTime updatedAt,
     DateTime? processedAt,
+    File? attachmentFile,
   }) : super(
           id: id,
           userId: userId,
@@ -28,6 +31,7 @@ class PaymentModel extends Payment {
           createdAt: createdAt,
           updatedAt: updatedAt,
           processedAt: processedAt,
+          attachmentFile: attachmentFile,
         );
 
   // ✅ CORRECTION : Utiliser 'description' comme 'title' car le mock n'a pas de champ 'title'
@@ -45,6 +49,7 @@ class PaymentModel extends Payment {
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
       processedAt: json['processed_at'] != null ? DateTime.parse(json['processed_at']) : null,
+      attachmentFile: json['attachment_file'] != null ? File(json['attachment_file']) : null,
     );
   }
 
@@ -62,6 +67,7 @@ class PaymentModel extends Payment {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'processed_at': processedAt?.toIso8601String(),
+      'attachment_file': attachmentFile?.path,
     };
   }
 
@@ -79,6 +85,7 @@ class PaymentModel extends Payment {
       createdAt: payment.createdAt,
       updatedAt: payment.updatedAt,
       processedAt: payment.processedAt,
+      attachmentFile: payment.attachmentFile,
     );
   }
 

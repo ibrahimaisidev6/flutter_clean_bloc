@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/payment.dart';
+import '../../../domain/entities/payment.dart';
 import 'package:payment_app/features/payments/domain/entities/payment_enums.dart';
 
 class PaymentStatsWidget extends StatefulWidget {

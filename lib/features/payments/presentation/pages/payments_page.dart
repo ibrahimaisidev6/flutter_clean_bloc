@@ -8,8 +8,8 @@ import 'package:payment_app/features/payments/presentation/pages/payment_detail_
 import '../../../../injection_container.dart';
 import '../../domain/entities/payment.dart';
 import '../bloc/bloc.dart';
-import '../widgets/payment_stats_widget.dart';
-import '../widgets/date_filter_widget.dart';
+import 'widgets/payment_stats_widget.dart';
+import 'widgets/date_filter_widget.dart';
 import 'create_payment_page.dart';
 
 class PaymentsPage extends StatelessWidget {

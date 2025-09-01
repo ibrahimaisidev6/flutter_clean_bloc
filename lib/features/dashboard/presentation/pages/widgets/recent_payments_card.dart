@@ -1,8 +1,8 @@
 // lib/features/dashboard/presentation/widgets/recent_payments_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../payments/domain/entities/payment.dart';
-import '../../../payments/domain/entities/payment_enums.dart';
+import '../../../../payments/domain/entities/payment.dart';
+import '../../../../payments/domain/entities/payment_enums.dart';
 
 class RecentPaymentsCard extends StatelessWidget {
   final List<Payment> payments;
